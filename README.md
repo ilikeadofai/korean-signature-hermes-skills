@@ -179,7 +179,346 @@ hermes --version
 Hermes Agent v0.x.x
 ```
 
-### 4.2 처음 설정하기
+### 4.2 Windows 사용자를 위한 WSL 설치법
+
+Windows에서는 Hermes를 그냥 `cmd`나 PowerShell에 바로 설치하기보다 **WSL**을 사용하는 것을 추천합니다. WSL은 Windows 안에서 Ubuntu 같은 Linux 환경을 실행하는 기능입니다.
+
+쉽게 말하면:
+
+```text
+Windows 컴퓨터 안에 작은 Linux 개발 환경을 하나 만든다
+→ 그 Linux 안에 Hermes를 설치한다
+→ 브라우저는 Windows에서 열고, 명령어는 WSL 터미널에서 실행한다
+```
+
+#### Step 1. Windows 버전 확인
+
+Windows 10 최신 버전 또는 Windows 11이면 대부분 WSL을 사용할 수 있습니다.
+
+먼저 Windows 검색창에 `PowerShell`을 검색합니다.
+
+- `Windows PowerShell` 또는 `터미널`을 찾습니다.
+- 가능하면 **관리자 권한으로 실행**합니다.
+
+PowerShell에서 아래 명령어를 입력합니다.
+
+```powershell
+wsl --status
+```
+
+이미 WSL이 설치되어 있으면 상태 정보가 나옵니다. 설치되어 있지 않으면 다음 단계로 진행합니다.
+
+#### Step 2. WSL 설치
+
+PowerShell을 관리자 권한으로 열고 아래 명령어를 실행합니다.
+
+```powershell
+wsl --install
+```
+
+보통 이 명령 하나로 Ubuntu까지 함께 설치됩니다.
+
+설치가 끝나면 Windows를 재부팅하라는 안내가 나올 수 있습니다. 그 경우 재부팅하세요.
+
+만약 Ubuntu가 자동으로 설치되지 않았다면 아래처럼 설치할 수 있습니다.
+
+```powershell
+wsl --install -d Ubuntu
+```
+
+설치 가능한 Linux 목록을 보고 싶으면:
+
+```powershell
+wsl --list --online
+```
+
+#### Step 3. Ubuntu 처음 실행
+
+Windows 시작 메뉴에서 `Ubuntu`를 검색해서 실행합니다.
+
+처음 실행하면 Linux 사용자 이름과 비밀번호를 만들라고 나옵니다.
+
+예시:
+
+```text
+Enter new UNIX username: student
+New password:
+Retype new password:
+```
+
+주의할 점:
+
+- 비밀번호를 입력해도 화면에 글자가 보이지 않는 것이 정상입니다.
+- Windows 비밀번호와 같을 필요는 없습니다.
+- 잊어버리지 않을 비밀번호를 사용하세요.
+
+#### Step 4. Ubuntu 업데이트
+
+Ubuntu 창이 열리면 아래 명령어를 실행합니다.
+
+```bash
+sudo apt update
+sudo apt upgrade -y
+```
+
+`sudo`를 처음 쓰면 방금 만든 Linux 비밀번호를 물어볼 수 있습니다.
+
+기본 도구도 설치합니다.
+
+```bash
+sudo apt install -y curl git ca-certificates
+```
+
+#### Step 5. Hermes 설치
+
+이제 Ubuntu 터미널 안에서 Hermes 설치 명령어를 실행합니다.
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash
+```
+
+설치 후 터미널을 완전히 닫았다가 다시 열거나, 아래 명령어를 실행합니다.
+
+```bash
+source ~/.bashrc
+```
+
+설치 확인:
+
+```bash
+hermes --version
+```
+
+정상이라면 Hermes 버전이 출력됩니다.
+
+#### Step 6. Hermes 초기 설정
+
+```bash
+hermes setup
+```
+
+또는 모델 설정만 하려면:
+
+```bash
+hermes model
+```
+
+여기서 사용할 AI provider를 고릅니다. 예를 들어 OpenRouter, Anthropic, OpenAI Codex OAuth, Gemini 등을 사용할 수 있습니다.
+
+설정 후 상태 확인:
+
+```bash
+hermes status --all
+```
+
+문제가 있으면:
+
+```bash
+hermes doctor
+```
+
+#### Step 7. Windows 브라우저에서 Hermes Dashboard 열기
+
+WSL의 Ubuntu 터미널에서 아래 명령어를 실행합니다.
+
+```bash
+hermes dashboard --tui
+```
+
+그러면 보통 Windows 브라우저에서 자동으로 열리거나, 아래 주소로 접속할 수 있습니다.
+
+```text
+http://127.0.0.1:9119
+```
+
+자동으로 안 열리면 Windows의 Chrome, Edge, Firefox 주소창에 직접 입력하세요.
+
+브라우저를 자동으로 열지 않게 하려면:
+
+```bash
+hermes dashboard --tui --no-open
+```
+
+포트가 이미 사용 중이면:
+
+```bash
+hermes dashboard --tui --port 9120
+```
+
+그 경우 접속 주소는 다음입니다.
+
+```text
+http://127.0.0.1:9120
+```
+
+#### Step 8. WSL 안에서 이 저장소 설치
+
+Ubuntu 터미널에서 아래 명령어를 실행합니다.
+
+```bash
+cd ~
+git clone https://github.com/ilikeadofai/korean-signature-hermes-skills.git
+cd korean-signature-hermes-skills
+./install.sh
+```
+
+설치 확인:
+
+```bash
+hermes skills list | grep -E 'signature-harness|korean-high-school-signature-planning'
+```
+
+Hermes를 다시 시작하거나, Hermes 채팅 안에서 `/reset`을 입력하면 새 스킬이 인식됩니다.
+
+#### Step 9. WSL에서 스킬 사용
+
+터미널에서 바로 시작하려면:
+
+```bash
+hermes -s signature-harness
+```
+
+또는 Web Dashboard의 Chat/TUI 입력창에서:
+
+```text
+/skill signature-harness
+```
+
+그 다음 이렇게 요청할 수 있습니다.
+
+```text
+SIGNATURE 방향 설계를 도와줘. 후보축을 먼저 만들고, 바로 최종안으로 가지 말고 내가 선택하게 해줘.
+```
+
+#### Step 10. Windows 파일과 WSL 파일 위치 이해하기
+
+WSL을 처음 쓰면 파일 위치가 헷갈릴 수 있습니다.
+
+Ubuntu 안의 홈 폴더는 보통 다음과 같습니다.
+
+```text
+/home/내사용자이름/
+```
+
+Windows의 C 드라이브는 WSL에서 다음 위치로 보입니다.
+
+```text
+/mnt/c/
+```
+
+예를 들어 Windows의 다운로드 폴더는 보통 다음처럼 접근합니다.
+
+```bash
+cd /mnt/c/Users/윈도우사용자이름/Downloads
+```
+
+하지만 가능하면 프로젝트 파일은 WSL 홈 폴더 안에 두는 것을 추천합니다.
+
+좋은 위치:
+
+```text
+/home/내사용자이름/signature-project/
+```
+
+비추천 위치:
+
+```text
+/mnt/c/Users/.../Desktop/signature-project/
+```
+
+이유는 WSL 안의 Linux 파일 시스템이 보통 더 빠르고, 권한 문제도 적기 때문입니다.
+
+#### Step 11. 생활기록부/학교 자료를 WSL로 옮기는 방법
+
+가장 쉬운 방법은 Windows 파일 탐색기에서 WSL 폴더를 여는 것입니다.
+
+Ubuntu 터미널에서 아래 명령어를 실행합니다.
+
+```bash
+explorer.exe .
+```
+
+그러면 현재 WSL 폴더가 Windows 파일 탐색기로 열립니다. 여기에 PDF나 텍스트 파일을 드래그해서 넣으면 됩니다.
+
+예시 프로젝트 폴더 만들기:
+
+```bash
+mkdir -p ~/signature-project
+cd ~/signature-project
+explorer.exe .
+```
+
+그 다음 Windows 파일 탐색기 창에 다음 자료를 복사합니다.
+
+```text
+redacted_record.pdf
+signature_guide.pdf
+sd_navigation.pdf
+workbook.pdf
+selected_subjects.txt
+```
+
+Hermes에게는 이렇게 말할 수 있습니다.
+
+```text
+자료는 ~/signature-project 폴더에 있어.
+생활기록부는 redacted_record.pdf,
+SIGNATURE 안내문은 signature_guide.pdf,
+수행평가 자료는 workbook.pdf야.
+```
+
+#### Step 12. WSL 사용 시 자주 생기는 문제
+
+`wsl: command not found`가 뜨는 경우:
+
+- PowerShell이 아니라 아주 오래된 터미널 환경일 수 있습니다.
+- Windows 10/11 업데이트가 필요할 수 있습니다.
+- 관리자 권한 PowerShell에서 다시 시도하세요.
+
+`hermes: command not found`가 뜨는 경우:
+
+```bash
+source ~/.bashrc
+~/.local/bin/hermes --version
+```
+
+그래도 안 되면 PATH에 `~/.local/bin`이 안 잡힌 것입니다. 아래 줄을 `~/.bashrc`에 추가할 수 있습니다.
+
+```bash
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+source ~/.bashrc
+```
+
+Dashboard 주소가 안 열리는 경우:
+
+```bash
+hermes dashboard --status
+hermes dashboard --tui --no-open
+```
+
+그리고 Windows 브라우저에서 직접 접속합니다.
+
+```text
+http://127.0.0.1:9119
+```
+
+WSL이 꼬인 것 같으면 PowerShell에서 WSL을 재시작할 수 있습니다.
+
+```powershell
+wsl --shutdown
+```
+
+그 다음 Ubuntu를 다시 실행하세요.
+
+파일 경로에 공백이 있어서 문제가 생기는 경우:
+
+```bash
+cd "/mnt/c/Users/Your Name/Downloads"
+```
+
+처럼 따옴표를 사용하세요. 그래도 초보자라면 `~/signature-project`처럼 공백 없는 WSL 홈 폴더를 쓰는 것이 가장 편합니다.
+
+### 4.3 처음 설정하기
 
 처음에는 Hermes가 어떤 AI 모델을 쓸지 설정해야 합니다.
 
