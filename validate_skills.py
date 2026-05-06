@@ -1,110 +1,89 @@
 #!/usr/bin/env python3
-"""Dependency-free validator for the Korean SIGNATURE Hermes skill bundle."""
-from pathlib import Path
+"""Dependency-free validation for the bundled Hermes skills."""
+from __future__ import annotations
+
 import re
 import sys
-import json
+from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
-SKILLS = [
-    ROOT / "skills/education/korean-high-school-signature-planning",
-    ROOT / "skills/education/signature-harness",
-]
+SKILLS = ROOT / "skills"
+MAX_DESCRIPTION = 1024
+MAX_SKILL_CHARS = 100_000
 
-# Build a few project-specific forbidden strings by concatenation so the
-# validator can check for them without the public repo itself containing the
-# exact phrases in plain text.
-FORBIDDEN_LITERAL = [
-    "고1" + "생기부",
-    "데이터 주권 기반" + " 신뢰 가능한 개인 정보 시스템 설계자",
-    "개인 데이터 주권을 위한" + " 4계층 프라이버시 아키텍처 설계와 한계 분석",
-    "User Context" + " Captured",
-    "session" + "-derived",
+# Build some local/private patterns without documenting actual private values in README prose.
+FORBIDDEN_PATTERNS = [
+    "/" + "home" + "/" + "mattc",
+    "Academics/" + "log_book",
+    "2026" + "0505",
+    "User" + "'s durable",
 ]
-
 SECRET_PATTERNS = [
-    r"sk-[A-Za-z0-9_-]{20,}",
-    r"OPENROUTER_API_KEY\s*=\s*[^\s]+",
-    r"ANTHROPIC_API_KEY\s*=\s*[^\s]+",
-    r"OPENAI_API_KEY\s*=\s*[^\s]+",
-    r"AIza[0-9A-Za-z_-]{20,}",
-    r"ghp_[0-9A-Za-z]{20,}",
-    r"xox[baprs]-[0-9A-Za-z-]{20,}",
+    re.compile(r"gh[opsu]_[A-Za-z0-9_]{20,}"),
+    re.compile(r"github_pat_[A-Za-z0-9_]{20,}"),
+    re.compile(r"sk-[A-Za-z0-9]{20,}"),
+    re.compile(r"AKIA[0-9A-Z]{16}"),
+    re.compile(r"(?i)(api[_-]?key|secret|token|password)\s*[:=]\s*['\"]?[A-Za-z0-9_./+=-]{16,}"),
 ]
 
 
-def parse_scalar_frontmatter(path: Path):
-    """Parse the scalar keys needed for validation without PyYAML.
-
-    Hermes itself supports YAML frontmatter, but this distribution validator only
-    needs `name`, `description`, and `version`, which are simple scalar fields in
-    these skills. This keeps `python validate_skills.py` dependency-free.
-    """
-    text = path.read_text(encoding="utf-8")
-    if not text.startswith("---\n"):
-        raise AssertionError(f"{path}: frontmatter must start at byte 0")
-    marker = text.find("\n---\n", 4)
-    if marker == -1:
-        raise AssertionError(f"{path}: missing closing frontmatter marker")
-    fm_text = text[4:marker]
-    body = text[marker + len("\n---\n"):]
-    fm = {}
+def parse_frontmatter(text: str, path: Path) -> tuple[dict[str, str], str]:
+    if not text.startswith("---"):
+        raise ValueError(f"{path}: SKILL.md must start with frontmatter marker at byte 0")
+    m = re.search(r"\n---\s*\n", text[3:])
+    if not m:
+        raise ValueError(f"{path}: missing closing frontmatter marker")
+    fm_text = text[3:m.start() + 3]
+    body = text[m.end() + 3:]
+    data: dict[str, str] = {}
     for line in fm_text.splitlines():
-        if not line or line.startswith(" ") or ":" not in line:
+        if not line.strip() or line.startswith(" ") or line.startswith("#"):
             continue
-        key, value = line.split(":", 1)
-        key = key.strip()
-        value = value.strip().strip('"').strip("'")
-        if key in {"name", "description", "version", "author", "license"}:
-            fm[key] = value
+        if ":" in line:
+            key, value = line.split(":", 1)
+            data[key.strip()] = value.strip().strip('"\'')
+    return data, body
+
+
+def validate_skill(path: Path) -> None:
+    text = path.read_text(encoding="utf-8")
+    if len(text) > MAX_SKILL_CHARS:
+        raise ValueError(f"{path}: too large ({len(text)} chars > {MAX_SKILL_CHARS})")
+    fm, body = parse_frontmatter(text, path)
     if not fm.get("name"):
-        raise AssertionError(f"{path}: missing name")
+        raise ValueError(f"{path}: missing name")
     if not fm.get("description"):
-        raise AssertionError(f"{path}: missing description")
-    if len(str(fm["description"])) > 1024:
-        raise AssertionError(f"{path}: description exceeds 1024 characters")
+        raise ValueError(f"{path}: missing description")
+    if len(fm["description"]) > MAX_DESCRIPTION:
+        raise ValueError(f"{path}: description too long")
     if not body.strip():
-        raise AssertionError(f"{path}: empty body")
-    if len(text) > 100_000:
-        raise AssertionError(f"{path}: SKILL.md exceeds 100,000 characters")
-    return fm
+        raise ValueError(f"{path}: empty body")
 
 
-def main():
-    report = {"skills": {}, "issues": []}
-    all_text_parts = []
+def scan_text_file(path: Path) -> None:
+    text = path.read_text(encoding="utf-8", errors="ignore")
+    for forbidden in FORBIDDEN_PATTERNS:
+        if forbidden in text:
+            raise ValueError(f"{path}: contains private/local pattern: {forbidden}")
+    for pattern in SECRET_PATTERNS:
+        if pattern.search(text):
+            raise ValueError(f"{path}: possible secret matched {pattern.pattern}")
 
-    for skill in SKILLS:
-        if not skill.exists():
-            raise AssertionError(f"missing skill dir: {skill}")
-        skill_md = skill / "SKILL.md"
-        if not skill_md.exists():
-            raise AssertionError(f"missing {skill_md}")
-        fm = parse_scalar_frontmatter(skill_md)
-        refs_dir = skill / "references"
-        refs = sorted(str(p.relative_to(skill)) for p in refs_dir.glob("*.md")) if refs_dir.exists() else []
-        report["skills"][fm["name"]] = {
-            "description_len": len(str(fm["description"])),
-            "version": fm.get("version"),
-            "references": refs,
-        }
-        for p in skill.rglob("*.md"):
-            all_text_parts.append((p, p.read_text(encoding="utf-8", errors="replace")))
 
-    for p, text in all_text_parts:
-        for s in FORBIDDEN_LITERAL:
-            if s in text:
-                report["issues"].append(f"{p}: forbidden literal {s!r}")
-        for pattern in SECRET_PATTERNS:
-            if re.search(pattern, text):
-                report["issues"].append(f"{p}: possible secret pattern {pattern}")
-
-    if report["issues"]:
-        print(json.dumps(report, ensure_ascii=False, indent=2))
-        sys.exit(1)
-    report["status"] = "PASS"
-    print(json.dumps(report, ensure_ascii=False, indent=2))
+def main() -> int:
+    skill_files = sorted(SKILLS.rglob("SKILL.md"))
+    if not skill_files:
+        print("No SKILL.md files found", file=sys.stderr)
+        return 1
+    for p in skill_files:
+        validate_skill(p)
+        print(f"VALID {p.relative_to(ROOT)}")
+    for p in sorted(ROOT.rglob("*")):
+        if p.is_file() and p.suffix.lower() in {".md", ".py", ".sh", ".txt", ""} and ".git" not in p.parts:
+            scan_text_file(p)
+    print(f"OK: {len(skill_files)} skills validated")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

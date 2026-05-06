@@ -241,14 +241,43 @@ Keep `SKILL.md` compact. Put longer documents in `references/`:
 
 This keeps the skill fast to load while preserving reusable instructions.
 
-## 6. Optional future automation
+## 6. Standalone distribution bundle
 
-A future installer script could:
+For sharing the harness outside a single local Hermes install, prefer a standalone bundle or GitHub repository:
 
-1. Create the skill directory.
-2. Copy the generated Markdown files to `references/`.
-3. Write the SKILL.md file.
-4. Validate YAML frontmatter.
-5. Run `hermes skills list` in a fresh session.
+```text
+signature-skills-distribution/
+  README.md
+  LICENSE
+  install.sh
+  validate_skills.py
+  DISTRIBUTION_AUDIT.md
+  skills/
+    education/
+      korean-high-school-signature-planning/
+      signature-harness/
+```
 
-No installer was run in this task; this file is guidance only.
+Recommended installer behavior:
+
+1. Resolve `HERMES_HOME="${HERMES_HOME:-$HOME/.hermes}"`.
+2. Copy complete skill directories, not only `SKILL.md`, into `$HERMES_HOME/skills/education/`.
+3. Overwrite existing target skill directories only after the source has a `SKILL.md`.
+4. Tell the user to restart Hermes or run `/reset` so the skill index refreshes.
+
+Recommended validator behavior:
+
+1. Avoid mandatory third-party Python dependencies such as PyYAML for distribution checks; a simple scalar frontmatter parser is enough to verify `name`, `description`, frontmatter boundaries, and size limits.
+2. Verify descriptions are <= 1024 characters and each body is non-empty.
+3. Scan for local paths, student-specific final roadmaps, obvious identifiers, and common secret/token patterns before archiving.
+4. Report `PASS`/`FAIL` in JSON.
+
+Archive pitfall:
+
+- Do not embed the archive SHA256 inside `DISTRIBUTION_AUDIT.md` if that audit file is included in the archive; repacking will change the checksum. Put a note in the audit and provide the final SHA256 externally.
+
+Publishing options:
+
+- Share the tarball/repo and have users run `./install.sh`.
+- Publish dependencies first, then run `hermes skills publish skills/education/korean-high-school-signature-planning` and `hermes skills publish skills/education/signature-harness`.
+- For an upstream Hermes PR, copy both skill directories under the in-repo `skills/education/` tree and follow the in-repo skill authoring checklist.

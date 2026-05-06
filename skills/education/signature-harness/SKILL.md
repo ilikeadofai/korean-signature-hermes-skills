@@ -18,6 +18,29 @@ Use this skill to run a production-grade Korean high-school SIGNATURE / SD Navig
 
 This skill is evidence-based, privacy-aware, interactive, and Korean-school-context aware. Internal analysis may be English, but student-facing outputs must be Korean by default.
 
+## First-Run Setup Order
+
+At the very beginning of any onboarding or user-facing setup explanation, state this order clearly:
+
+1. **Windows first:** install or open WSL. macOS/Linux users can use their normal terminal.
+2. Install **Hermes Agent** inside WSL/Linux/macOS.
+3. Start and use **Hermes Web UI** or the configured Hermes gateway/API workflow.
+4. Install, select, or load the repo skill that provides `signature-harness` and `korean-high-school-signature-planning`.
+5. Provide required reference files in the workspace/Web UI: **Sunduck SIGNATURE / SD Navigation materials** and the student's **생활기록부**.
+6. Run the harness from those files: source inventory → privacy preflight → evidence extraction → candidate axes → student checkpoint → selected-subject checkpoint → roadmap/draft/audit.
+
+Use `references/onboarding-and-required-files.md` for exact setup wording, required-file checklist, Web UI flow, and restart instructions. Windows/WSL restart instructions must appear before macOS/Linux instructions.
+
+## Required Input Files
+
+Do not treat SIGNATURE planning as grounded until these files are supplied or explicitly marked missing:
+
+- **Sunduck SIGNATURE / SD Navigation reference files:** school guide, workbook, rubric, performance-assessment list, or templates.
+- **Student 생활기록부 / school record:** preferably redacted; scan/OCR may be used only with privacy safeguards.
+- **Optional but recommended:** selected-subject list, Grade 11 workbook, prior drafts, teacher feedback, reading list, portfolio files.
+
+If the SIGNATURE/SD materials or 생활기록부 are missing, produce only a clearly labeled `자료 제공 전 임시안` unless the user provides the files.
+
 ## When to Use
 
 Use when the user asks for:
@@ -141,6 +164,7 @@ Ask only the necessary questions first:
 
 ## Workflow
 
+0. First-run setup and required-file gate: for new users, explain WSL → Hermes install → Web UI → repo skill → required reference files. Confirm that Sunduck SIGNATURE/SD Navigation materials and the 생활기록부 are present, or label the run `자료 제공 전 임시안`.
 1. Capability and privacy preflight.
 2. Source inventory and redaction check.
 3. School framework extraction from SIGNATURE / SD Navigation / performance-assessment documents.
@@ -213,6 +237,7 @@ Before finalizing:
 
 Load the relevant linked files when the run is complex or when you need exact schemas/templates:
 
+- `references/onboarding-and-required-files.md` — first-run setup order, Web UI usage flow, required Sunduck SIGNATURE/SD Navigation and 생활기록부 files, and Windows-first restart instructions.
 - `references/improved_harness.md` — full internal English harness specification.
 - `references/hermes_system_prompt.md` — system/developer prompt form.
 - `references/subagent_plan.md` — subagent contracts and orchestration plan.

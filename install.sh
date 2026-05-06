@@ -11,18 +11,14 @@ copy_skill() {
   local name="$1"
   local src="$ROOT_DIR/skills/education/$name"
   local dst="$TARGET/$name"
-  if [[ ! -f "$src/SKILL.md" ]]; then
-    echo "Missing skill source: $src/SKILL.md" >&2
-    exit 1
-  fi
+  [[ -f "$src/SKILL.md" ]] || { echo "Missing $src/SKILL.md" >&2; exit 1; }
   rm -rf "$dst"
   cp -R "$src" "$dst"
   echo "Installed $name -> $dst"
 }
 
-copy_skill korean-high-school-signature-planning
 copy_skill signature-harness
+copy_skill korean-high-school-signature-planning
 
 echo
-echo "Done. Restart Hermes or run /reset so the skill index refreshes."
-echo "Verify with: hermes skills list | grep -E 'signature-harness|korean-high-school-signature-planning'"
+echo "Done. Restart Hermes, start a new session, or run /reset so the skill index refreshes."

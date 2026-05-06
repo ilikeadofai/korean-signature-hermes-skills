@@ -3,19 +3,26 @@
 Thumbs.db
 *.swp
 *.swo
+.vscode/
+.idea/
 
-# Python cache
+# Python/cache
 __pycache__/
 *.py[cod]
 .pytest_cache/
+.ruff_cache/
 
-# Local Hermes/user data - never commit real student records
-.hermes/
-signature-harness-run*/
-*.local
+# Secrets/local Hermes data
 .env
 .env.*
+!.env.example
+.hermes/
+config.yaml
+*.key
+*.pem
 
-# Archives generated outside the repo root
+# Generated run outputs
+signature-harness-run*/
+*-harness-run*/
 *.tar.gz
 *.zip

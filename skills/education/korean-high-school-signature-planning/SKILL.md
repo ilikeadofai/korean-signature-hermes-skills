@@ -16,6 +16,27 @@ Use this skill when the user asks to build, revise, brainstorm, or polish a Kore
 
 This is **not** a generic report-writing task. The expected output is usually a **student-specific activity plan/roadmap** that can later become 수행평가 artifacts and 생활기록부 evidence. The plan must be grounded in the student’s actual records, interests, selected subjects, school materials, and feasible constraints.
 
+## First-Run Setup Order
+
+When explaining the workflow from the beginning, state the setup and execution order first:
+
+1. **Windows first:** install or open WSL. macOS/Linux users can use their normal terminal.
+2. Install **Hermes Agent** in WSL/Linux/macOS.
+3. Launch and use **Hermes Web UI** or the configured Hermes gateway/API workflow.
+4. Load/use the repository skills: `signature-harness` and `korean-high-school-signature-planning`.
+5. Put required reference files in the workspace/Web UI: **Sunduck SIGNATURE / SD Navigation materials** and the student's **생활기록부**.
+6. Run the planning workflow from those files, then proceed through candidate-axis checkpoint, selected-subject checkpoint, roadmap, draft, and audit.
+
+Use `references/first-run-setup-and-required-files.md` for exact onboarding wording, required files, Web UI flow, and Windows-first restart instructions. If the required files are missing, label the result `자료 제공 전 임시안`.
+
+## Required Inputs
+
+Before producing a grounded roadmap, confirm or request:
+
+- Sunduck SIGNATURE / SD Navigation files: guide, workbook, rubric, templates, performance-assessment list, or related school documents.
+- 생활기록부 / student record: preferably redacted; if scanned, follow privacy-safe OCR/vision procedures.
+- Selected subjects under the 2022 revised curriculum, if subject-level roadmap or 수행평가 matching is requested.
+
 ## Core Principles
 
 1. **Evidence first**
@@ -47,6 +68,10 @@ This is **not** a generic report-writing task. The expected output is usually a 
    - When the user explicitly requests every subject, create a broad activity bank but clearly mark it as an all-subject candidate bank that must later be filtered.
 
 ## Recommended Workflow
+
+### 0. First-run setup and required-file gate
+
+For new users, begin by explaining: WSL → Hermes install → Hermes Web UI → repo skill usage → Sunduck SIGNATURE/SD reference files + 생활기록부. Confirm that those files exist in the workspace, or mark the result `자료 제공 전 임시안`.
 
 ### 1. Extract student evidence
 
@@ -203,6 +228,8 @@ Examples:
 
 ## Reference Notes
 
+- See `references/first-run-setup-and-required-files.md` for the required first-use order: WSL → Hermes install → Web UI → repo skill usage → Sunduck SIGNATURE/SD reference files + 생활기록부, including Windows-first restart instructions.
 - See `references/privacy-ai-os-integrity-roadmap.md` for an optional reusable model for students whose evidence/interests genuinely involve privacy, AI data flow, operating systems, memory safety, storage integrity, or related trustworthy-computing themes.
 - See `references/curriculum-grounded-activity-bank.md` when expanding a SIGNATURE roadmap into broad, creative, subject-by-subject activity recommendations grounded in actual 수행평가 names and official NCIC 2022 개정 curriculum anchors.
 - See `references/generic-signature-harness-productionization.md` when turning a SIGNATURE/SD Navigation prompt into a reusable production harness: evidence/claim ledgers, privacy gates, subagent contracts, state-saving artifacts, Korean-output policy, and synthetic regression tests.
+- See `references/calculus-ai-singing-voice-vibrato.md` when planning a 미적분 수행평가 that combines AI/음성합성/VOCALOID/music interests with change-rate or derivative analysis; includes feasible activity designs, prior research DOIs, tooling, and school-safe limitations.

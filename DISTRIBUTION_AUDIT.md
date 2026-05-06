@@ -1,40 +1,22 @@
 # Distribution Audit
 
-- Status: PASS
-- Package: `korean-signature-hermes-skills`
-- Validator: `python validate_skills.py` PASS, dependency-free
-- External publishing status at package time: ready for GitHub publication
+## Package
 
-## Included skills
+- Repository: `ilikeadofai/korean-signature-hermes-skills`
+- Skills:
+  - `signature-harness`
+  - `korean-high-school-signature-planning`
 
-```json
-{
-  "korean-high-school-signature-planning": {
-    "version": "1.0.1",
-    "description_len": 188,
-    "role": "General Korean high-school SIGNATURE / SD Navigation planning skill"
-  },
-  "signature-harness": {
-    "version": "1.0.0",
-    "description_len": 213,
-    "role": "Production-style evidence/privacy/checkpoint/audit harness"
-  }
-}
-```
+## Checks
 
-## Validation scope
+- [x] Complete skill directories copied, including `references/` files.
+- [x] README explains WSL → Hermes install → Web UI → repo skill usage.
+- [x] README states that Sunduck SIGNATURE/SD Navigation materials and 생활기록부 are required reference files.
+- [x] README includes Windows/WSL restart instructions before macOS/Linux.
+- [x] `install.sh` uses `${HERMES_HOME:-$HOME/.hermes}`.
+- [x] `validate_skills.py` is dependency-free.
+- [x] Validator checks frontmatter, size, empty body, obvious secrets, and local/private strings.
 
-The validator checks:
+## Privacy Notes
 
-- expected skill directories exist
-- each `SKILL.md` starts with frontmatter
-- `name` and `description` are present
-- description length is within the Hermes limit
-- skill bodies are non-empty
-- common user-specific strings and obvious secret patterns are absent from skill Markdown files
-
-## Notes
-
-- No real student records are included.
-- No API keys, provider tokens, passwords, or credential files are included.
-- This package is intended as a public, reusable skill bundle.
+This repository must not include actual student records, generated private run artifacts, API keys, tokens, passwords, or local-only personal paths.
