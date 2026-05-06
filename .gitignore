@@ -1,0 +1,21 @@
+# OS/editor noise
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Python cache
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Local Hermes/user data - never commit real student records
+.hermes/
+signature-harness-run*/
+*.local
+.env
+.env.*
+
+# Archives generated outside the repo root
+*.tar.gz
+*.zip
